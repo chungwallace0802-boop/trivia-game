@@ -40,12 +40,12 @@
     <!-- 主要內容區塊 -->
     <main class="w-full max-w-2xl mx-auto flex-1 flex flex-col">
 
-        <!-- 大廳首頁 (Britannica 風格分類與自訂題庫列表) -->
+        <!-- 大廳首頁 -->
         <div id="view-home" class="space-y-6">
             <div class="bg-gradient-to-br from-indigo-900/60 via-slate-900 to-violet-950/80 border border-indigo-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
                 <span id="badge-daily" class="bg-indigo-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Featured Daily</span>
-                <h2 id="home-banner-title" class="text-lg font-bold text-white mt-2">今日精選：動物極限大排序</h2>
-                <p id="home-banner-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">挑戰全網同步的每日冷知識排序，登上全球排行榜！</p>
+                <h2 id="home-banner-title" class="text-lg font-bold text-white mt-2">今日精選：世界冷知識大挑戰</h2>
+                <p id="home-banner-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">挑戰全網同步的單選冷知識問答，看看誰是答題王！</p>
                 <button onclick="startCategory('daily')" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all">
                     ▶ 立即挑戰今日任務
                 </button>
@@ -85,10 +85,6 @@
                     <div id="options-list" class="space-y-2"></div>
                 </div>
 
-                <button id="submit-btn" onclick="checkAnswer()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all text-sm">
-                    送出答案 🚀
-                </button>
-
                 <!-- 結果與解析 -->
                 <div id="result-box" class="hidden space-y-3 pt-3 border-t border-slate-800">
                     <div id="result-message" class="text-center font-bold text-sm"></div>
@@ -124,14 +120,14 @@
     <div id="creator-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 id="ui-modal-title" class="font-bold text-sm text-indigo-400">✨ 建立你的自訂排序題庫</h3>
+                <h3 id="ui-modal-title" class="font-bold text-sm text-indigo-400">✨ 建立你的自訂單選題庫</h3>
                 <button onclick="closeCreatorModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
             </div>
             
             <div class="space-y-3 text-xs">
                 <div>
                     <label id="ui-lbl-set-title" class="block text-slate-400 mb-1">題庫名稱 (Set Title)：</label>
-                    <input type="text" id="new-set-title" placeholder="例如：世界名貓重量大PK" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="new-set-title" placeholder="例如：世界地理大考驗" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label id="ui-lbl-creator" class="block text-slate-400 mb-1">您的名字/作者 (Creator)：</label>
@@ -139,20 +135,24 @@
                 </div>
                 <div>
                     <label id="ui-lbl-q-text" class="block text-slate-400 mb-1">題目敘述 (Question)：</label>
-                    <input type="text" id="new-q-text" placeholder="請將以下動物由輕到重排序" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="new-q-text" placeholder="例如：法國的首都是哪一個城市？" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
-                    <label id="ui-lbl-options" class="block text-slate-400 mb-1">選項 (請輸入 4 個選項，順序為【正確解答順序】)：</label>
+                    <label id="ui-lbl-options" class="block text-slate-400 mb-1">選項 (請輸入 4 個選項)：</label>
                     <div class="space-y-2">
-                        <input type="text" id="opt-0" placeholder="第 1 項 (最輕/最前面)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
-                        <input type="text" id="opt-1" placeholder="第 2 項" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
-                        <input type="text" id="opt-2" placeholder="第 3 項" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
-                        <input type="text" id="opt-3" placeholder="第 4 項 (最重/最後面)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
+                        <input type="text" id="opt-0" placeholder="選項 A" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
+                        <input type="text" id="opt-1" placeholder="選項 B" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
+                        <input type="text" id="opt-2" placeholder="選項 C" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
+                        <input type="text" id="opt-3" placeholder="選項 D" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white text-xs">
                     </div>
                 </div>
                 <div>
+                    <label id="ui-lbl-correct" class="block text-slate-400 mb-1">正確答案是第幾個選項 (1 到 4)：</label>
+                    <input type="number" id="new-correct-idx" min="1" max="4" value="1" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
                     <label id="ui-lbl-exp" class="block text-slate-400 mb-1">冷知識解析 (Explanation)：</label>
-                    <textarea id="new-exp" rows="2" placeholder="解釋為什麼是這個順序..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                    <textarea id="new-exp" rows="2" placeholder="解釋正確答案的原因..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
                 </div>
             </div>
 
