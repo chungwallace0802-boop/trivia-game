@@ -3,180 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Trivia Sorting Challenge</title>
+    <title>Trivia Hub - 每日冷知識與排序挑戰</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-4 selection:bg-indigo-500 selection:text-white">
 
-    <!-- 頂部標題與語言切換 -->
-    <header class="w-full max-w-md flex justify-between items-center mb-4 relative">
-        <div>
-            <div id="ui-date" class="text-xs text-slate-400 font-medium">日期：載入中...</div>
-            <div id="ui-day-badge" class="inline-block bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold mt-1">Day --</div>
+    <!-- 頂部導覽列 (App Header) -->
+    <header class="w-full max-w-2xl mx-auto flex justify-between items-center py-3 border-b border-slate-800 mb-6">
+        <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
+            <span class="text-2xl">🧠</span>
+            <div>
+                <h1 class="text-base font-black tracking-wider bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">TRIVIA HUB</h1>
+                <p class="text-[10px] text-slate-400">Discover & Sort Daily Knowledge</p>
+            </div>
         </div>
-        <!-- 語言切換選單 -->
-        <div class="flex items-center space-x-2">
-            <span class="text-xs text-slate-400">🌐</span>
-            <select id="lang-selector" onchange="switchLanguage(this.value)" class="bg-slate-800 text-slate-200 text-xs px-2 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer">
+        
+        <!-- 頂部右側：返回首頁按鈕與語言切換 -->
+        <div class="flex items-center space-x-3">
+            <button id="home-btn" onclick="goHome()" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition-all">
+                🏠 返回大廳
+            </button>
+            <select id="lang-selector" onchange="switchLanguage(this.value)" class="bg-slate-900 text-slate-200 text-xs px-2 py-1.5 rounded-lg border border-slate-800 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer">
                 <option value="zh">繁體中文</option>
                 <option value="en">English</option>
             </select>
         </div>
     </header>
 
-    <!-- 主要遊戲區塊 -->
-    <main class="w-full max-w-md bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-2xl p-5 shadow-xl flex flex-col space-y-4">
-        
-        <!-- 標題與計時器 -->
-        <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-            <h1 id="ui-app-title" class="text-base font-bold text-indigo-400">🧠 每日冷知識排序</h1>
-            <div id="ui-timer" class="text-sm font-mono bg-slate-900/60 px-3 py-1 rounded-full text-amber-400 border border-slate-700">⏱️ 0.0s</div>
-        </div>
+    <!-- 主要內容動態切換區塊 -->
+    <main class="w-full max-w-2xl mx-auto flex-1 flex flex-col">
 
-        <!-- 題目說明 -->
-        <div id="question-container" class="space-y-3">
-            <p id="ui-instruction" class="text-sm text-slate-300 font-medium leading-relaxed"></p>
-            
-            <!-- 選項列表 (動態生成) -->
-            <div id="options-list" class="space-y-2"></div>
-        </div>
-
-        <!-- 送出按鈕 -->
-        <button id="submit-btn" onclick="checkAnswer()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 text-sm">
-            送出答案 🚀
-        </button>
-
-        <!-- 結果與解析區 (預設隱藏) -->
-        <div id="result-box" class="hidden space-y-3 pt-3 border-t border-slate-700">
-            <div id="result-message" class="text-center font-bold text-sm"></div>
-            
-            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 text-xs space-y-1">
-                <span id="ui-exp-title" class="font-bold text-amber-400">💡 趣味冷知識解析：</span>
-                <p id="explanation-text" class="text-slate-300 leading-relaxed"></p>
+        <!-- ==========================
+             頁面 A：大廳/分類與題庫清單
+             ========================== -->
+        <div id="view-home" class="space-y-6">
+            <!-- 每日特色推薦橫幅 -->
+            <div class="bg-gradient-to-br from-indigo-900/60 via-slate-900 to-violet-950/80 border border-indigo-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 text-7xl opacity-10">🌟</div>
+                <span class="bg-indigo-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Featured Daily</span>
+                <h2 id="home-banner-title" class="text-lg font-bold text-white mt-2">今日精選：動物極限大排序</h2>
+                <p id="home-banner-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">挑戰全網同步的每日冷知識，看看你能不能在最短時間內完成正確排序並登上全球排行榜！</p>
+                <button onclick="startCategory('daily')" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center space-x-2">
+                    <span>▶ 立即挑戰今日任務</span>
+                </button>
             </div>
 
-            <!-- 成績登記區 -->
-            <div id="score-input-section" class="space-y-2 pt-2">
-                <label id="ui-nickname-label" class="block text-xs text-slate-400">留下大名登錄今日排行榜：</label>
-                <div class="flex space-x-2">
-                    <input type="text" id="player-nickname" maxlength="10" placeholder="請輸入暱稱" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    <button onclick="uploadScore()" id="ui-register-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">登記成績</button>
+            <!-- 分類選單區塊 (Categories) -->
+            <div>
+                <h3 id="ui-categories-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Quiz Categories & Topics</h3>
+                <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- 動態載入分類卡片 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================
+             頁面 B：遊戲進行中畫面 (預設隱藏)
+             ========================== -->
+        <div id="view-game" class="hidden space-y-4">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col space-y-4 backdrop-blur">
+                
+                <!-- 遊戲頂端資訊列 -->
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div>
+                        <span id="game-category-badge" class="bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">Science</span>
+                        <div id="game-date-str" class="text-xs text-slate-400 mt-1">日期：2026-08-26</div>
+                    </div>
+                    <div id="ui-timer" class="text-sm font-mono bg-slate-950 px-3 py-1 rounded-full text-amber-400 border border-slate-800">⏱️ 0.0s</div>
+                </div>
+
+                <!-- 題目敘述 -->
+                <div class="space-y-3">
+                    <p id="game-question-text" class="text-sm text-slate-200 font-medium leading-relaxed"></p>
+                    <div id="options-list" class="space-y-2"></div>
+                </div>
+
+                <!-- 送出按鈕 -->
+                <button id="submit-btn" onclick="checkAnswer()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all text-sm">
+                    送出答案 🚀
+                </button>
+
+                <!-- 結果與解析 (答對/答錯後顯示) -->
+                <div id="result-box" class="hidden space-y-3 pt-3 border-t border-slate-800">
+                    <div id="result-message" class="text-center font-bold text-sm"></div>
+                    
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
+                        <span id="ui-exp-title" class="font-bold text-amber-400">💡 趣味冷知識解析：</span>
+                        <p id="explanation-text" class="text-slate-300 leading-relaxed"></p>
+                    </div>
+
+                    <!-- 成績登記區 -->
+                    <div id="score-input-section" class="space-y-2 pt-2">
+                        <label id="ui-nickname-label" class="block text-xs text-slate-400">留下大名登錄今日排行榜：</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="player-nickname" maxlength="10" placeholder="請輸入暱稱" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <button onclick="uploadScore()" id="ui-register-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">登記成績</button>
+                        </div>
+                    </div>
+
+                    <button onclick="shareResult()" id="ui-share-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold py-2 rounded-lg transition-all">
+                        📋 複製戰績分享
+                    </button>
                 </div>
             </div>
 
-            <!-- 分享戰績按鈕 -->
-            <button onclick="shareResult()" id="ui-share-btn" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold py-2 rounded-lg transition-all">
-                📋 複製今日戰績
-            </button>
+            <!-- 排行榜區塊 -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <h3 id="ui-rank-title" class="text-xs font-bold text-indigo-400 mb-3 uppercase tracking-wider">🏆 即時排行榜</h3>
+                <div id="leaderboard-list" class="space-y-1.5 text-xs">
+                    <div class="text-slate-500 text-center py-2">載入排行榜中...</div>
+                </div>
+            </div>
         </div>
+
     </main>
 
-    <!-- 排行榜區塊 -->
-    <section class="w-full max-w-md bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-2xl p-4 shadow-xl mt-4">
-        <h2 id="ui-rank-title" class="text-xs font-bold text-indigo-400 mb-3 uppercase tracking-wider">🏆 今日排行榜 (速報)</h2>
-        <div id="leaderboard-list" class="space-y-1.5 text-xs">
-            <div id="ui-loading-rank" class="text-slate-500 text-center py-2">正在載入排行榜資料...</div>
-        </div>
-    </section>
-
     <!-- 底部版權 -->
-    <footer class="mt-6 text-center text-[10px] text-slate-500">
-        Daily Trivia Sorting Challenge &copy; 2026
+    <footer class="mt-10 py-4 text-center text-[10px] text-slate-500 border-t border-slate-900">
+        Trivia Hub &copy; 2026 &bull; Powered by Supabase & GitHub Pages
     </footer>
 
-    <!-- JavaScript 遊戲核心與多語言邏輯 -->
+    <!-- JavaScript 邏輯與題庫系統 -->
     <script>
         // ==========================================
-        // 🌐 多語言字典與題庫設定
+        // 📚 多語言分類題庫與介面設定
         // ==========================================
-        const langData = {
+        const appData = {
             zh: {
-                appTitle: "🧠 每日冷知識排序",
-                instruction: "請點擊「▲」與「▼」將下方選項排至正確順序（由上至下）：",
+                bannerTitle: "今日精選：動物極限大排序",
+                bannerDesc: "挑戰全網同步的每日冷知識，看看你能不能在最短時間內完成正確排序並登上全球排行榜！",
+                startDailyBtn: "▶ 立即挑戰今日任務",
+                categoriesTitle: "精選冷知識分類與題庫",
+                rankTitle: "🏆 即時排行榜",
+                datePrefix: "日期：",
                 submitBtn: "送出答案 🚀",
                 expTitle: "💡 趣味冷知識解析：",
                 nicknameLabel: "留下大名登錄今日排行榜：",
                 nicknamePlaceholder: "請輸入您的暱稱 (最多10字)",
                 registerBtn: "登記成績",
-                shareBtn: "📋 複製今日戰績",
-                rankTitle: "🏆 今日排行榜 (速報)",
-                loadingRank: "正在載入排行榜資料...",
-                noRank: "今日尚無通關記錄，快來搶頭香！",
-                datePrefix: "日期：",
-                dayPrefix: "Day ",
+                shareBtn: "📋 複製戰績分享",
                 successMsg: "🎉 恭喜通關！耗時 ",
                 failMsg: "❌ 順序不正確！再試一次！",
                 successToast: "成績成功登錄排行榜！🎉",
                 copyToast: "已複製戰績到剪貼簿！",
-                questions: [
-                    {
-                        questionText: "請將以下動物依照「成年體型平均體重」由輕到重排序：",
-                        options: [{ text: "家貓 🐱" }, { text: "非洲象 🐘" }, { text: "兔子 🐰" }, { text: "河馬 🦛" }],
-                        correctOrder: [2, 0, 3, 1],
-                        explanation: "一般成年兔約 2 公斤，家貓約 4 公斤，河馬可達 1.5 噸，而成年非洲象則重達 5 噸左右！"
-                    },
-                    {
-                        questionText: "請將以下太陽系行星依照「距離太陽由近到遠」排序：",
-                        options: [{ text: "地球 🌍" }, { text: "水星 ☿" }, { text: "木星 ♃" }, { text: "火星 ♂" }],
-                        correctOrder: [1, 0, 3, 2],
-                        explanation: "距離太陽由近至遠依序為：水星、金星、地球、火星、木星、土星、天王星、海王星。"
-                    }
-                ]
+                noRank: "尚無通關記錄，快來搶頭香！",
+                categories: [
+                    { id: 'science', name: "科學與自然 (Science)", icon: "🔬", desc: "探索動物、天文與物理世界的奧秘大小事。" },
+                    { id: 'history', name: "歷史與世界 (History)", icon: "🏛️", desc: "回顧改變世界的重大歷史事件與偉人足跡。" },
+                    { id: 'geography', name: "地理與城市 (Geography)", icon: "🌍", desc: "考驗你對全球城市、河流與地標的熟悉度。" },
+                    { id: 'popculture', name: "流行與娛樂 (Pop Culture)", icon: "🎬", desc: "電影、音樂與日常生活的趣味冷知識大集合。" }
+                ],
+                // 各分類題庫
+                questions: {
+                    daily: [
+                        {
+                            questionText: "請將以下動物依照「成年體型平均體重」由輕到重排序：",
+                            options: [{ text: "家貓 🐱" }, { text: "非洲象 🐘" }, { text: "兔子 🐰" }, { text: "河馬 🦛" }],
+                            correctOrder: [2, 0, 3, 1],
+                            explanation: "成年兔約 2 公斤，家貓約 4 公斤，河馬達 1.5 噸，非洲象重達 5 噸左右！"
+                        }
+                    ],
+                    science: [
+                        {
+                            questionText: "請將以下太陽系行星依照「距離太陽由近到遠」排序：",
+                            options: [{ text: "地球 🌍" }, { text: "水星 ☿" }, { text: "木星 ♃" }, { text: "火星 ♂" }],
+                            correctOrder: [1, 0, 3, 2],
+                            explanation: "由近至遠依序為：水星、金星、地球、火星、木星、土星、天王星、海王星。"
+                        }
+                    ],
+                    history: [
+                        {
+                            questionText: "請將以下歷史發明或事件按照「發生時間由早到晚」排序：",
+                            options: [{ text: "造紙術發明 📜" }, { text: "登陸月球 🌕" }, { text: "第一次世界大戰 ⚔️" }, { text: "蒸汽機發明 🚂" }],
+                            correctOrder: [0, 3, 2, 1],
+                            explanation: "中國造紙術（東漢）最早，接著是工業革命蒸汽機、一戰（1914），最後是1969年人類登月。"
+                        }
+                    ],
+                    geography: [
+                        {
+                            questionText: "請將以下知名城市依照「緯度由北到南」排序（最北排最上方）：",
+                            options: [{ text: "東京 🗼" }, { text: "倫敦 🇬🇧" }, { text: "新加坡 🇸🇬" }, { text: "台北 🇹🇼" }],
+                            correctOrder: [1, 0, 3, 2],
+                            explanation: "倫敦緯度最高（約51°N），其次為東京（35°N）、台北（25°N），新加坡最靠近赤道（1°N）。"
+                        }
+                    ],
+                    popculture: [
+                        {
+                            questionText: "請將以下日常物品依照「平均價格或體積」由小到大排序：",
+                            options: [{ text: "智慧型手機 📱" }, { text: "原子筆 🖊️" }, { text: "筆記型電腦 💻" }, { text: "家用汽車 🚗" }],
+                            correctOrder: [1, 0, 2, 3],
+                            explanation: "原子筆最便宜輕巧，其次是手機、筆電，體積與價值最高的是家用汽車。"
+                        }
+                    ]
+                }
             },
             en: {
-                appTitle: "🧠 Daily Trivia Sorting",
-                instruction: "Tap '▲' and '▼' to sort the items in correct order (Top to Bottom):",
+                bannerTitle: "Daily Featured: Animal Weight Challenge",
+                bannerDesc: "Take on today's sync trivia challenge. Sort items correctly in record time and claim your spot on the leaderboard!",
+                startDailyBtn: "▶ Play Today's Challenge",
+                categoriesTitle: "Quiz Categories & Topics",
+                rankTitle: "🏆 Live Leaderboard",
+                datePrefix: "Date: ",
                 submitBtn: "Submit Answer 🚀",
                 expTitle: "💡 Fun Fact Explanation:",
                 nicknameLabel: "Leave your name for today's leaderboard:",
                 nicknamePlaceholder: "Enter your nickname (Max 10 chars)",
                 registerBtn: "Submit Score",
-                shareBtn: "📋 Copy Today's Result",
-                rankTitle: "🏆 Today's Leaderboard (Live)",
-                loadingRank: "Loading leaderboard...",
-                noRank: "No scores yet today. Be the first!",
-                datePrefix: "Date: ",
-                dayPrefix: "Day ",
+                shareBtn: "📋 Copy Result",
                 successMsg: "🎉 Correct! Time: ",
                 failMsg: "❌ Incorrect order! Try again!",
                 successToast: "Score successfully uploaded! 🎉",
                 copyToast: "Result copied to clipboard!",
-                questions: [
-                    {
-                        questionText: "Sort the following animals by their average adult body weight (Lightest to Heaviest):",
-                        options: [{ text: "Domestic Cat 🐱" }, { text: "African Elephant 🐘" }, { text: "Rabbit 🐰" }, { text: "Hippo 🦛" }],
-                        correctOrder: [2, 0, 3, 1],
-                        explanation: "An adult rabbit is about 2kg, a cat is about 4kg, a hippo can reach 1.5 tons, and an African elephant weighs around 5 tons!"
-                    },
-                    {
-                        questionText: "Sort the following solar system planets by their distance from the Sun (Closest to Farthest):",
-                        options: [{ text: "Earth 🌍" }, { text: "Mercury ☿" }, { text: "Jupiter ♃" }, { text: "Mars ♂" }],
-                        correctOrder: [1, 0, 3, 2],
-                        explanation: "The order from closest to farthest is: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune."
-                    }
-                ]
+                noRank: "No scores yet. Be the first!",
+                categories: [
+                    { id: 'science', name: "Science & Nature", icon: "🔬", desc: "Explore the mysteries of animals, space, and physics." },
+                    { id: 'history', name: "History & World", icon: "🏛️", desc: "Review major historical events and figures that shaped us." },
+                    { id: 'geography', name: "Geography & Travel", icon: "🌍", desc: "Test your knowledge of world cities, rivers, and landmarks." },
+                    { id: 'popculture', name: "Pop Culture", icon: "🎬", desc: "Fun trivia collections from movies, music, and daily life." }
+                ],
+                questions: {
+                    daily: [
+                        {
+                            questionText: "Sort the following animals by their average adult body weight (Lightest to Heaviest):",
+                            options: [{ text: "Domestic Cat 🐱" }, { text: "African Elephant 🐘" }, { text: "Rabbit 🐰" }, { text: "Hippo 🦛" }],
+                            correctOrder: [2, 0, 3, 1],
+                            explanation: "A rabbit is ~2kg, a cat is ~4kg, a hippo reaches 1.5 tons, and an African elephant weighs around 5 tons!"
+                        }
+                    ],
+                    science: [
+                        {
+                            questionText: "Sort the following solar system planets by their distance from the Sun (Closest to Farthest):",
+                            options: [{ text: "Earth 🌍" }, { text: "Mercury ☿" }, { text: "Jupiter ♃" }, { text: "Mars ♂" }],
+                            correctOrder: [1, 0, 3, 2],
+                            explanation: "The order from closest to farthest: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune."
+                        }
+                    ],
+                    history: [
+                        {
+                            questionText: "Sort the following historical events by chronological order (Earliest to Latest):",
+                            options: [{ text: "Invention of Paper 📜" }, { text: "Moon Landing 🌕" }, { text: "World War I ⚔️" }, { text: "Invention of Steam Engine 🚂" }],
+                            correctOrder: [0, 3, 2, 1],
+                            explanation: "Paper invention was earliest, followed by the steam engine, WWI (1914), and the Moon landing in 1969."
+                        }
+                    ],
+                    geography: [
+                        {
+                            questionText: "Sort the following cities by latitude from North to South (Northernmost on top):",
+                            options: [{ text: "Tokyo 🗼" }, { text: "London 🇬🇧" }, { text: "Singapore 🇸🇬" }, { text: "Taipei 🇹🇼" }],
+                            correctOrder: [1, 0, 3, 2],
+                            explanation: "London is furthest north (~51°N), followed by Tokyo, Taipei, and Singapore near the equator."
+                        }
+                    ],
+                    popculture: [
+                        {
+                            questionText: "Sort the following items by their average value or size (Smallest to Largest):",
+                            options: [{ text: "Smartphone 📱" }, { text: "Ballpoint Pen 🖊️" }, { text: "Laptop 💻" }, { text: "Family Car 🚗" }],
+                            correctOrder: [1, 0, 2, 3],
+                            explanation: "A pen is smallest/cheapest, followed by a phone, laptop, and family car."
+                        }
+                    ]
+                }
             }
         };
 
-        let currentLang = 'zh'; // 預設語言
+        let currentLang = 'zh';
+        let currentCategory = 'daily';
 
         // ==========================================
-        // 🛠️ SUPABASE 設定區 (已自動填入您的專案資訊)
+        // 🛠️ SUPABASE 設定
         // ==========================================
         const SUPABASE_URL = 'https://xqzxtexxjuedzejgsudk.supabase.co'; 
         const SUPABASE_KEY = 'sb_publishable_F5FKV-tD7SNjLziE0GXD5Q_R5UX8dYr';
-        
         let supabaseClient = null;
         try {
             if (SUPABASE_URL.includes('supabase.co')) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
-        } catch (e) {
-            console.error("Supabase 初始化失敗", e);
-        }
+        } catch (e) { console.error(e); }
 
         // 遊戲狀態變數
         let currentOptions = [];
@@ -186,84 +292,100 @@
         let isGameFinished = false;
         let activeQuestion = null;
         let todayStr = "";
-        let dayIndex = 1;
 
-        // 初始化載入
         window.addEventListener('DOMContentLoaded', () => {
-            initGame();
-            fetchRankings();
+            renderHome();
         });
 
-        // 切換語言函式
+        // 切換語言
         function switchLanguage(lang) {
             currentLang = lang;
-            updateUIStrings();
-            loadDailyQuestion();
+            renderHome();
+            if (!document.getElementById('view-game').classList.contains('hidden')) {
+                startCategory(currentCategory);
+            }
         }
 
-        // 更新介面文字
-        function updateUIStrings() {
-            const t = langData[currentLang];
-            document.getElementById('ui-app-title').innerText = t.appTitle;
-            document.getElementById('ui-instruction').innerText = t.instruction;
-            document.getElementById('submit-btn').innerText = t.submitBtn;
-            document.getElementById('ui-exp-title').innerText = t.expTitle;
-            document.getElementById('ui-nickname-label').innerText = t.nicknameLabel;
-            document.getElementById('player-nickname').placeholder = t.nicknamePlaceholder;
-            document.getElementById('ui-register-btn').innerText = t.registerBtn;
-            document.getElementById('ui-share-btn').innerText = t.shareBtn;
-            document.getElementById('ui-rank-title').innerText = t.rankTitle;
+        // 渲染首頁大廳
+        function renderHome() {
+            const data = appData[currentLang];
+            document.getElementById('home-banner-title').innerText = data.bannerTitle;
+            document.getElementById('home-banner-desc').innerText = data.bannerDesc;
+            document.getElementById('ui-categories-title').innerText = data.categoriesTitle;
+            document.getElementById('home-btn').classList.add('hidden');
+            
+            document.getElementById('view-home').classList.remove('hidden');
+            document.getElementById('view-game').classList.add('hidden');
+
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = '';
+            data.categories.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 hover:bg-slate-800/90 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-4 cursor-pointer transition-all flex flex-col justify-between shadow-md group";
+                card.onclick = () => startCategory(cat.id);
+                card.innerHTML = `
+                    <div>
+                        <div class="text-2xl mb-2">${cat.icon}</div>
+                        <h4 class="font-bold text-sm text-slate-200 group-hover:text-indigo-400 transition-colors">${cat.name}</h4>
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${cat.desc}</p>
+                    </div>
+                    <div class="mt-4 flex items-center text-[11px] font-semibold text-indigo-400">
+                        <span>Play Quiz →</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        // 初始化今日題目與日期
-        function initGame() {
+        // 返回首頁
+        function goHome() {
+            clearInterval(timerInterval);
+            renderHome();
+        }
+
+        // 開始指定分類的遊戲
+        function startCategory(catId) {
+            currentCategory = catId;
+            isGameFinished = false;
+            elapsedSeconds = 0;
+
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-game').classList.remove('hidden');
+            document.getElementById('home-btn').classList.remove('hidden');
+            document.getElementById('result-box').classList.add('hidden');
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('score-input-section').classList.remove('hidden');
+            document.getElementById('player-nickname').value = '';
+
             const now = new Date();
             todayStr = now.toISOString().split('T')[0];
-            
-            // 計算 Day 數字 (以 2026-08-26 作為基底)
-            const baselineDate = new Date('2026-08-26');
-            const diffTime = now - baselineDate;
-            dayIndex = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
+            const data = appData[currentLang];
+            document.getElementById('game-date-str').innerText = `${data.datePrefix}${todayStr}`;
+            document.getElementById('game-category-badge').innerText = catId.toUpperCase();
+            document.getElementById('ui-rank-title').innerText = data.rankTitle;
 
-            updateUIStrings();
+            // 取得對應分類的題目
+            const qList = data.questions[catId] || data.questions.daily;
+            activeQuestion = qList[0]; // 可擴充隨機抽取
 
-            const t = langData[currentLang];
-            document.getElementById('ui-date').innerText = `${t.datePrefix}${todayStr}`;
-            document.getElementById('ui-day-badge').innerText = `${t.dayPrefix}${dayIndex}`;
+            document.getElementById('game-question-text').innerText = activeQuestion.questionText;
 
-            loadDailyQuestion();
-            startTimer();
-        }
-
-        // 載入當日題目
-        function loadDailyQuestion() {
-            const questions = langData[currentLang].questions;
-            const qIndex = (dayIndex - 1) % questions.length;
-            activeQuestion = questions[qIndex];
-
-            document.getElementById('ui-instruction').innerText = activeQuestion.questionText;
-            
-            // 複製選項並加上原始索引追蹤
             currentOptions = activeQuestion.options.map((opt, idx) => ({
                 text: opt.text,
                 originalIndex: idx
             }));
 
-            // 如果遊戲尚未結束，隨機打亂初始順序
-            if (!isGameFinished) {
-                shuffleArray(currentOptions);
-            }
-
+            shuffleArray(currentOptions);
             renderOptions();
+            startTimer();
+            fetchRankings();
         }
 
-        // 陣列洗牌函式
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
-            // 確保打亂後不是完美正確答案（增加趣味）
             const correctIds = activeQuestion.correctOrder;
             const currentIds = array.map(item => item.originalIndex);
             if (JSON.stringify(currentIds) === JSON.stringify(correctIds)) {
@@ -271,14 +393,13 @@
             }
         }
 
-        // 渲染選項清單與上下調整按鈕
         function renderOptions() {
             const listContainer = document.getElementById('options-list');
             listContainer.innerHTML = '';
 
             currentOptions.forEach((option, index) => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-center justify-between bg-slate-900/80 border border-slate-700/80 rounded-xl p-3 transition-all";
+                itemDiv.className = "flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl p-3 transition-all";
                 
                 const textSpan = document.createElement('span');
                 textSpan.className = "text-xs font-medium text-slate-200";
@@ -289,38 +410,34 @@
                     const btnGroup = document.createElement('div');
                     btnGroup.className = "flex space-x-1";
 
-                    // 往上按鈕
                     const upBtn = document.createElement('button');
                     upBtn.innerHTML = "▲";
-                    upBtn.className = `w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold ${index === 0 ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-800 hover:bg-indigo-600 text-slate-300'}`;
+                    upBtn.className = `w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold ${index === 0 ? 'bg-slate-900 text-slate-700 cursor-not-allowed' : 'bg-slate-900 hover:bg-indigo-600 text-slate-300'}`;
                     upBtn.disabled = (index === 0);
                     upBtn.onclick = () => moveOption(index, index - 1);
                     btnGroup.appendChild(upBtn);
 
-                    // 往下按鈕
                     const downBtn = document.createElement('button');
                     downBtn.innerHTML = "▼";
-                    downBtn.className = `w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold ${index === currentOptions.length - 1 ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-800 hover:bg-indigo-600 text-slate-300'}`;
+                    downBtn.className = `w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold ${index === currentOptions.length - 1 ? 'bg-slate-900 text-slate-700 cursor-not-allowed' : 'bg-slate-900 hover:bg-indigo-600 text-slate-300'}`;
                     downBtn.disabled = (index === currentOptions.length - 1);
                     downBtn.onclick = () => moveOption(index, index + 1);
                     btnGroup.appendChild(downBtn);
 
                     itemDiv.appendChild(btnGroup);
                 }
-
                 listContainer.appendChild(itemDiv);
             });
         }
 
-        // 移動選項順序
         function moveOption(fromIdx, toIdx) {
             const movedItem = currentOptions.splice(fromIdx, 1)[0];
             currentOptions.splice(toIdx, 0, movedItem);
             renderOptions();
         }
 
-        // 計時器開始
         function startTimer() {
+            clearInterval(timerInterval);
             startTime = Date.now();
             timerInterval = setInterval(() => {
                 if (!isGameFinished) {
@@ -331,7 +448,6 @@
             }, 100);
         }
 
-        // 檢查答案
         function checkAnswer() {
             if (isGameFinished) return;
 
@@ -342,63 +458,60 @@
             clearInterval(timerInterval);
             isGameFinished = true;
 
-            const t = langData[currentLang];
+            const data = appData[currentLang];
             const resultBox = document.getElementById('result-box');
             const resultMsg = document.getElementById('result-message');
-            const submitBtn = document.getElementById('submit-btn');
-
+            
             resultBox.classList.remove('hidden');
-            submitBtn.classList.add('hidden');
+            document.getElementById('submit-btn').classList.add('hidden');
+            document.getElementById('ui-exp-title').innerText = data.expTitle;
+            document.getElementById('ui-nickname-label').innerText = data.nicknameLabel;
+            document.getElementById('player-nickname').placeholder = data.nicknamePlaceholder;
+            document.getElementById('ui-register-btn').innerText = data.registerBtn;
+            document.getElementById('ui-share-btn').innerText = data.shareBtn;
 
             if (isCorrect) {
                 resultMsg.className = "text-center font-bold text-sm text-emerald-400";
-                resultMsg.innerText = `${t.successMsg}${elapsedSeconds}s`;
+                resultMsg.innerText = `${data.successMsg}${elapsedSeconds}s`;
                 document.getElementById('explanation-text').innerText = activeQuestion.explanation;
-                renderOptions(); // 重新渲染（隱藏上下按鈕）
+                renderOptions();
             } else {
                 resultMsg.className = "text-center font-bold text-sm text-rose-400";
-                resultMsg.innerText = `${t.failMsg} (${elapsedSeconds}s)`;
-                document.getElementById('score-input-section').classList.add('hidden'); // 答錯不給登錄排行榜
+                resultMsg.innerText = `${data.failMsg} (${elapsedSeconds}s)`;
+                document.getElementById('score-input-section').classList.add('hidden');
                 document.getElementById('explanation-text').innerText = activeQuestion.explanation;
                 renderOptions();
             }
         }
 
-        // 上傳成績至 Supabase
         async function uploadScore() {
             const nickname = document.getElementById('player-nickname').value.trim();
             if (!nickname) {
                 alert(currentLang === 'en' ? "Please enter your nickname!" : "請輸入您的暱稱！");
                 return;
             }
-
             if (!supabaseClient) {
-                alert("Supabase client not initialized.");
+                alert("Database not connected.");
                 return;
             }
 
-            const { data, error } = await supabaseClient
+            const { error } = await supabaseClient
                 .from('rankings')
-                .insert([
-                    { date_str: todayStr, nickname: nickname, is_correct: true, elapsed_seconds: elapsedSeconds }
-                ]);
+                .insert([{ date_str: todayStr, nickname: nickname, is_correct: true, elapsed_seconds: elapsedSeconds }]);
 
             if (error) {
-                console.error("上傳失敗", error);
                 alert("上傳失敗，請稍後再試！");
             } else {
-                alert(langData[currentLang].successToast);
+                alert(appData[currentLang].successToast);
                 document.getElementById('score-input-section').classList.add('hidden');
                 fetchRankings();
             }
         }
 
-        // 抓取排行榜資料
         async function fetchRankings() {
             const rankListContainer = document.getElementById('leaderboard-list');
-            
             if (!supabaseClient) {
-                rankListContainer.innerHTML = `<div class="text-slate-500 text-center py-2">Database not connected.</div>`;
+                rankListContainer.innerHTML = `<div class="text-slate-500 text-center py-2">Database offline.</div>`;
                 return;
             }
 
@@ -409,26 +522,17 @@
                 .order('elapsed_seconds', { ascending: true })
                 .limit(10);
 
-            if (error) {
-                console.error("載入排行榜失敗", error);
-                rankListContainer.innerHTML = `<div class="text-rose-400 text-center py-2">Failed to load rankings.</div>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                rankListContainer.innerHTML = `<div class="text-slate-500 text-center py-2">${langData[currentLang].noRank}</div>`;
+            if (error || !data || data.length === 0) {
+                rankListContainer.innerHTML = `<div class="text-slate-500 text-center py-2">${appData[currentLang].noRank}</div>`;
                 return;
             }
 
             rankListContainer.innerHTML = '';
             data.forEach((row, idx) => {
                 const rowDiv = document.createElement('div');
-                rowDiv.className = "flex justify-between items-center bg-slate-900/60 px-3 py-2 rounded-lg border border-slate-800";
-                
+                rowDiv.className = "flex justify-between items-center bg-slate-950 px-3 py-2 rounded-lg border border-slate-800/80";
                 let medal = `#${idx + 1}`;
-                if (idx === 0) medal = "🥇";
-                else if (idx === 1) medal = "🥈";
-                else if (idx === 2) medal = "🥉";
+                if (idx === 0) medal = "🥇"; else if (idx === 1) medal = "🥈"; else if (idx === 2) medal = "🥉";
 
                 rowDiv.innerHTML = `
                     <span class="font-medium text-slate-300">${medal} ${escapeHtml(row.nickname)}</span>
@@ -438,16 +542,12 @@
             });
         }
 
-        // 分享戰績
         function shareResult() {
-            const t = langData[currentLang];
-            const text = `${t.appTitle} - ${t.dayPrefix}${dayIndex}\n⏱️ ${elapsedSeconds}s\n🔗 ${window.location.href}`;
-            navigator.clipboard.writeText(text).then(() => {
-                alert(t.copyToast);
-            });
+            const data = appData[currentLang];
+            const text = `Trivia Hub - ${currentCategory.toUpperCase()}\n⏱️ ${elapsedSeconds}s\n🔗 ${window.location.href}`;
+            navigator.clipboard.writeText(text).then(() => alert(data.copyToast));
         }
 
-        // 防止 XSS 攻擊的跳脫函式
         function escapeHtml(str) {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
