@@ -1,11 +1,11 @@
 // ==========================================
-// 📚 多語言字典與官方題庫
+// 📚 多語言字典與官方單選冷知識題庫 (全部為單一正確答案)
 // ==========================================
 const appData = {
     zh: {
         subtitle: "Discover, Play & Create Quizzes",
-        bannerTitle: "今日精選：動物極限大排序",
-        bannerDesc: "挑戰全網同步的每日冷知識排序，登上全球排行榜！",
+        bannerTitle: "今日精選：世界冷知識大挑戰",
+        bannerDesc: "挑戰全網同步的單選冷知識問答，看看誰是答題王！",
         startDailyBtn: "▶ 立即挑戰今日任務",
         categoriesTitle: "Quiz Categories",
         customTitle: "🌐 Community Custom Quizzes",
@@ -14,78 +14,83 @@ const appData = {
         rankTitle: "🏆 排行榜",
         datePrefix: "日期：",
         creatorPrefix: "作者：",
-        submitBtn: "送出答案 🚀",
         expTitle: "💡 趣味冷知識解析：",
         nicknameLabel: "留下大名登錄排行榜：",
         nicknamePlaceholder: "請輸入您的暱稱 (最多10字)",
         registerBtn: "登記成績",
         shareBtn: "📋 複製戰績分享",
-        successMsg: "🎉 恭喜通關！耗時 ",
-        failMsg: "❌ 順序不正確！再試一次！",
+        successMsg: "🎉 答對了！耗時 ",
+        failMsg: "❌ 答錯了！正確答案是：",
         successToast: "成績成功登錄排行榜！🎉",
         copyToast: "已複製戰績到剪貼簿！",
         noRank: "尚無通關記錄，快來搶頭香！",
-        modalTitle: "✨ 建立你的自訂排序題庫",
+        modalTitle: "✨ 建立你的自訂單選題庫",
         lblSetTitle: "題庫名稱 (Set Title)：",
         lblCreator: "您的名字/作者 (Creator)：",
         lblQText: "題目敘述 (Question)：",
-        lblOptions: "選項 (請輸入 4 個選項，順序為【正確解答順序】)：",
+        lblOptions: "選項 (請輸入 4 個選項)：",
+        lblCorrect: "正確答案是第幾個選項 (1 到 4)：",
         lblExp: "冷知識解析 (Explanation)：",
         btnCancel: "取消",
         btnPublish: "發布題庫 🚀",
         categories: [
-            { id: 'science', name: "科學與自然", icon: "🔬", desc: "探索動物、天文與物理世界的奧秘大小事。" },
+            { id: 'science', name: "科學與自然", icon: "🔬", desc: "探索動物、宇宙與物理世界的奧秘大小事。" },
             { id: 'history', name: "歷史與世界", icon: "🏛️", desc: "回顧改變世界的重大歷史事件與偉人足跡。" },
-            { id: 'geography', name: "地理與城市", icon: "🌍", desc: "考驗你對全球城市、河流與地標的熟悉度。" },
+            { id: 'geography', name: "地理與城市", icon: "🌍", desc: "考驗你對全球城市、國家與地標的熟悉度。" },
             { id: 'popculture', name: "流行與娛樂", icon: "🎬", desc: "電影、音樂與日常生活的趣味冷知識大集合。" }
         ],
         questions: {
             daily: [
                 {
-                    questionText: "請將以下動物依照「成年體型平均體重」由輕到重排序：",
-                    options: [{ text: "家貓 🐱" }, { text: "非洲象 🐘" }, { text: "兔子 🐰" }, { text: "河馬 🦛" }],
-                    correctOrder: [2, 0, 3, 1],
-                    explanation: "成年兔約 2 公斤，家貓約 4 公斤，河馬達 1.5 噸，非洲象重達 5 噸左右！"
+                    questionText: "章魚總共有幾顆心臟？",
+                    options: [{ text: "1 顆" }, { text: "2 顆" }, { text: "3 顆" }, { text: "4 顆" }],
+                    correctIndex: 2,
+                    explanation: "章魚擁有 3 顆心臟！其中兩顆負責將血液輸送到鰓，另一顆則負責將血液輸送到全身。"
                 }
             ],
             science: [
                 {
-                    questionText: "請將以下太陽系行星依照「距離太陽由近到遠」排序：",
-                    options: [{ text: "地球 🌍" }, { text: "水星 ☿" }, { text: "木星 ♃" }, { text: "火星 ♂" }],
-                    correctOrder: [1, 0, 3, 2],
-                    explanation: "由近至遠依序為：水星、金星、地球、火星、木星、土星、天王星、海王星。"
+                    questionText: "太陽系的八大行星中，哪一顆行星自轉方向與大部分行星相反（它是倒著自轉的）？",
+                    options: [{ text: "水星" }, { text: "金星" }, { text: "火星" }, { text: "海王星" }],
+                    correctIndex: 1,
+                    explanation: "金星是太陽系中唯一自轉方向由東向西（逆向自轉）的行星，所以在金星上太陽是從西邊升起的！"
                 }
             ],
             history: [
                 {
-                    questionText: "請將以下歷史發明或事件按照「發生時間由早到晚」排序：",
-                    options: [{ text: "造紙術發明 📜" }, { text: "登陸月球 🌕" }, { text: "第一次世界大戰 ⚔️" }, { text: "蒸汽機發明 🚂" }],
-                    correctOrder: [0, 3, 2, 1],
-                    explanation: "中國造紙術最早，接著是工業革命蒸汽機、一戰（1914），最後是1969年人類登月。"
+                    questionText: "古埃及法老圖坦卡門的陵墓是在哪一年被英國考古學家霍華·卡特發現的？",
+                    options: [{ text: "1905 年" }, { text: "1922 年" }, { text: "1935 年" }, { text: "1950 年" }],
+                    correctIndex: 1,
+                    explanation: "霍華·卡特於 1922 年 11 月 4 日發現了圖坦卡門陵墓的入口，這也是考古學史上最偉大的發現之一。"
                 }
             ],
             geography: [
                 {
-                    questionText: "請將以下知名城市依照「緯度由北到南」排序（最北排最上方）：",
-                    options: [{ text: "東京 🗼" }, { text: "倫敦 🇬🇧" }, { text: "新加坡 🇸🇬" }, { text: "台北 🇹🇼" }],
-                    correctOrder: [1, 0, 3, 2],
-                    explanation: "倫敦緯度最高，其次為東京、台北，新加坡最靠近赤道。"
+                    questionText: "下列哪一個國家擁有世界上最多的島嶼，數量超過 20 萬個？",
+                    options: [{ text: "印尼" }, { text: "日本" }, { text: "瑞典" }, { text: "菲律賓" }],
+                    correctIndex: 2,
+                    explanation: "瑞典擁有超過 26 萬個島嶼，是全球擁有最多島嶼的國家，其中大多數都是無人島或礁石。"
                 }
             ],
             popculture: [
                 {
-                    questionText: "請將以下日常物品依照「平均價格或體積」由小到大排序：",
-                    options: [{ text: "智慧型手機 📱" }, { text: "原子筆 🖊️" }, { text: "筆記型電腦 💻" }, { text: "家用汽車 🚗" }],
-                    correctOrder: [1, 0, 2, 3],
-                    explanation: "原子筆最便宜輕巧，其次是手機、筆電，體積與價值最高的是家用汽車。"
+                    questionText: "經典科幻電影《星際大戰》系列中，黑武士達斯·維達最經典的台詞「Luke, I am your father」實際上在電影中怎麼說的？",
+                    options: [
+                        { text: "“Luke, I am your father.”" },
+                        { text: "“No, I am your father.”" },
+                        { text: "“Obi-Wan never told you what happened to your father.”" },
+                        { text: "“Search your feelings, you know it to be true.”" }
+                    ],
+                    correctIndex: 1,
+                    explanation: "這是電影史上最著名的曼德拉效應之一！達斯·維達在《帝國大反擊》中實際說的是 “No, I am your father.”。"
                 }
             ]
         }
     },
     en: {
         subtitle: "Discover, Play & Create Quizzes",
-        bannerTitle: "Daily Featured: Animal Weight Challenge",
-        bannerDesc: "Take on today's sync trivia challenge. Sort items correctly in record time!",
+        bannerTitle: "Daily Featured: World Trivia Challenge",
+        bannerDesc: "Take on today's sync single-choice trivia challenge and test your knowledge!",
         startDailyBtn: "▶ Play Today's Challenge",
         categoriesTitle: "Quiz Categories",
         customTitle: "🌐 Community Custom Quizzes",
@@ -94,14 +99,13 @@ const appData = {
         rankTitle: "🏆 Leaderboard",
         datePrefix: "Date: ",
         creatorPrefix: "By: ",
-        submitBtn: "Submit Answer 🚀",
         expTitle: "💡 Fun Fact Explanation:",
         nicknameLabel: "Leave your name for leaderboard:",
         nicknamePlaceholder: "Enter your nickname (Max 10 chars)",
         registerBtn: "Submit Score",
         shareBtn: "📋 Copy Result",
         successMsg: "🎉 Correct! Time: ",
-        failMsg: "❌ Incorrect order! Try again!",
+        failMsg: "❌ Incorrect! Correct answer was: ",
         successToast: "Score successfully uploaded! 🎉",
         copyToast: "Result copied to clipboard!",
         noRank: "No scores yet. Be the first!",
@@ -109,7 +113,8 @@ const appData = {
         lblSetTitle: "Set Title:",
         lblCreator: "Your Name / Creator:",
         lblQText: "Question Text:",
-        lblOptions: "Options (Enter 4 options in correct chronological/logical order):",
+        lblOptions: "Options (Enter 4 options):",
+        lblCorrect: "Correct Option Number (1 to 4):",
         lblExp: "Explanation:",
         btnCancel: "Cancel",
         btnPublish: "Publish Set 🚀",
@@ -122,42 +127,47 @@ const appData = {
         questions: {
             daily: [
                 {
-                    questionText: "Sort the following animals by their average adult body weight (Lightest to Heaviest):",
-                    options: [{ text: "Domestic Cat 🐱" }, { text: "African Elephant 🐘" }, { text: "Rabbit 🐰" }, { text: "Hippo 🦛" }],
-                    correctOrder: [2, 0, 3, 1],
-                    explanation: "A rabbit is ~2kg, a cat is ~4kg, a hippo reaches 1.5 tons, and an African elephant weighs around 5 tons!"
+                    questionText: "How many hearts does an octopus have?",
+                    options: [{ text: "1" }, { text: "2" }, { text: "3" }, { text: "4" }],
+                    correctIndex: 2,
+                    explanation: "An octopus has 3 hearts! Two pump blood to the gills, while the third pumps it to the rest of the body."
                 }
             ],
             science: [
                 {
-                    questionText: "Sort the following solar system planets by their distance from the Sun (Closest to Farthest):",
-                    options: [{ text: "Earth 🌍" }, { text: "Mercury ☿" }, { text: "Jupiter ♃" }, { text: "Mars ♂" }],
-                    correctOrder: [1, 0, 3, 2],
-                    explanation: "The order from closest to farthest: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune."
+                    questionText: "Which planet in our solar system rotates in the opposite direction of most other planets (retrograde rotation)?",
+                    options: [{ text: "Mercury" }, { text: "Venus" }, { text: "Mars" }, { text: "Neptune" }],
+                    correctIndex: 1,
+                    explanation: "Venus rotates from east to west, which means the sun rises in the west and sets in the east on Venus!"
                 }
             ],
             history: [
                 {
-                    questionText: "Sort the following historical events by chronological order (Earliest to Latest):",
-                    options: [{ text: "Invention of Paper 📜" }, { text: "Moon Landing 🌕" }, { text: "World War I ⚔️" }, { text: "Invention of Steam Engine 🚂" }],
-                    correctOrder: [0, 3, 2, 1],
-                    explanation: "Paper invention was earliest, followed by the steam engine, WWI, and the Moon landing."
+                    questionText: "In which year did British archaeologist Howard Carter discover the tomb of King Tutankhamun?",
+                    options: [{ text: "1905" }, { text: "1922" }, { text: "1935" }, { text: "1950" }],
+                    correctIndex: 1,
+                    explanation: "Howard Carter discovered the entrance to King Tutankhamun's tomb on November 4, 1922."
                 }
             ],
             geography: [
                 {
-                    questionText: "Sort the following cities by latitude from North to South (Northernmost on top):",
-                    options: [{ text: "Tokyo 🗼" }, { text: "London 🇬🇧" }, { text: "Singapore 🇸🇬" }, { text: "台北 🇹🇼" }],
-                    correctOrder: [1, 0, 3, 2],
-                    explanation: "London is furthest north, followed by Tokyo, Taipei, and Singapore."
+                    questionText: "Which country has the most islands in the world, with over 200,000 islands?",
+                    options: [{ text: "Indonesia" }, { text: "Japan" }, { text: "Sweden" }, { text: "Philippines" }],
+                    correctIndex: 2,
+                    explanation: "Sweden has over 260,000 islands, making it the country with the highest number of islands globally."
                 }
             ],
             popculture: [
                 {
-                    questionText: "Sort the following items by their average value or size (Smallest to Largest):",
-                    options: [{ text: "Smartphone 📱" }, { text: "Ballpoint Pen 🖊️" }, { text: "Laptop 💻" }, { text: "Family Car 🚗" }],
-                    correctOrder: [1, 0, 2, 3],
-                    explanation: "A pen is smallest/cheapest, followed by a phone, laptop, and family car."
+                    questionText: "In Star Wars: Episode V, what does Darth Vader actually say to Luke Skywalker?",
+                    options: [
+                        { text: "“Luke, I am your father.”" },
+                        { text: "“No, I am your father.”" },
+                        { text: "“Obi-Wan never told you what happened to your father.”" },
+                        { text: "“Search your feelings, you know it to be true.”" }
+                    ],
+                    correctIndex: 1,
+                    explanation: "It's one of the most famous Mandela effects in history! Vader actually says, “No, I am your father.”"
                 }
             ]
         }
@@ -166,7 +176,7 @@ const appData = {
 
 let currentLang = 'zh';
 let currentCategory = 'daily';
-let activeCustomSetId = null; // 如果是玩家自訂題庫
+let activeCustomSetId = null;
 
 // ==========================================
 // 🛠️ SUPABASE 設定
@@ -180,14 +190,11 @@ try {
     }
 } catch (e) { console.error(e); }
 
-// 遊戲狀態變數
-let currentOptions = [];
 let startTime = null;
 let timerInterval = null;
 let elapsedSeconds = 0;
 let isGameFinished = false;
 let activeQuestion = null;
-let todayStr = "";
 
 window.addEventListener('DOMContentLoaded', () => {
     renderHome();
@@ -271,8 +278,6 @@ function setupGameSession(questionObj, badgeText, infoText) {
     document.getElementById('view-game').classList.remove('hidden');
     document.getElementById('home-btn').classList.remove('hidden');
     document.getElementById('result-box').classList.add('hidden');
-    document.getElementById('submit-btn').classList.remove('hidden');
-    document.getElementById('score-input-section').classList.remove('hidden');
     document.getElementById('player-nickname').value = '';
 
     const data = appData[currentLang];
@@ -281,70 +286,34 @@ function setupGameSession(questionObj, badgeText, infoText) {
     document.getElementById('ui-rank-title').innerText = data.rankTitle;
     document.getElementById('game-question-text').innerText = activeQuestion.questionText;
 
-    currentOptions = activeQuestion.options.map((opt, idx) => ({
-        text: opt.text,
-        originalIndex: idx
-    }));
-
-    shuffleArray(currentOptions);
-    renderOptions();
+    renderTriviaOptions();
     startTimer();
     fetchRankings();
 }
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    const correctIds = activeQuestion.correctOrder;
-    const currentIds = array.map(item => item.originalIndex);
-    if (JSON.stringify(currentIds) === JSON.stringify(correctIds)) {
-        [array[0], array[1]] = [array[1], array[0]];
-    }
-}
-
-function renderOptions() {
+function renderTriviaOptions(selectedIndex = null) {
     const listContainer = document.getElementById('options-list');
     listContainer.innerHTML = '';
 
-    currentOptions.forEach((option, index) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = "flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl p-3 transition-all";
+    activeQuestion.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left bg-slate-950 border border-slate-800 hover:border-indigo-500 rounded-xl p-3 text-xs font-medium text-slate-200 transition-all flex items-center justify-between";
         
-        const textSpan = document.createElement('span');
-        textSpan.className = "text-xs font-medium text-slate-200";
-        textSpan.innerText = `${index + 1}. ${option.text}`;
-        itemDiv.appendChild(textSpan);
-
-        if (!isGameFinished) {
-            const btnGroup = document.createElement('div');
-            btnGroup.className = "flex space-x-1";
-
-            const upBtn = document.createElement('button');
-            upBtn.innerHTML = "▲";
-            upBtn.className = `w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold ${index === 0 ? 'bg-slate-900 text-slate-700 cursor-not-allowed' : 'bg-slate-900 hover:bg-indigo-600 text-slate-300'}`;
-            upBtn.disabled = (index === 0);
-            upBtn.onclick = () => moveOption(index, index - 1);
-            btnGroup.appendChild(upBtn);
-
-            const downBtn = document.createElement('button');
-            downBtn.innerHTML = "▼";
-            downBtn.className = `w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold ${index === currentOptions.length - 1 ? 'bg-slate-900 text-slate-700 cursor-not-allowed' : 'bg-slate-900 hover:bg-indigo-600 text-slate-300'}`;
-            downBtn.disabled = (index === currentOptions.length - 1);
-            downBtn.onclick = () => moveOption(index, index + 1);
-            btnGroup.appendChild(downBtn);
-
-            itemDiv.appendChild(btnGroup);
+        if (isGameFinished) {
+            btn.disabled = true;
+            if (index === activeQuestion.correctIndex) {
+                btn.className = "w-full text-left bg-emerald-950/60 border border-emerald-500 rounded-xl p-3 text-xs font-bold text-emerald-300 flex items-center justify-between";
+            } else if (index === selectedIndex) {
+                btn.className = "w-full text-left bg-rose-950/60 border border-rose-500 rounded-xl p-3 text-xs font-bold text-rose-300 flex items-center justify-between";
+            }
+        } else {
+            btn.onclick = () => selectAnswer(index);
         }
-        listContainer.appendChild(itemDiv);
-    });
-}
 
-function moveOption(fromIdx, toIdx) {
-    const movedItem = currentOptions.splice(fromIdx, 1)[0];
-    currentOptions.splice(toIdx, 0, movedItem);
-    renderOptions();
+        const labels = ['A', 'B', 'C', 'D'];
+        btn.innerHTML = `<span><strong class="text-indigo-400 mr-2">${labels[index]}.</strong> ${option.text}</span>`;
+        listContainer.appendChild(btn);
+    });
 }
 
 function startTimer() {
@@ -359,22 +328,18 @@ function startTimer() {
     }, 100);
 }
 
-function checkAnswer() {
+function selectAnswer(selectedIndex) {
     if (isGameFinished) return;
-
-    const userOrder = currentOptions.map(item => item.originalIndex);
-    const correctOrder = activeQuestion.correctOrder;
-    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(correctOrder);
 
     clearInterval(timerInterval);
     isGameFinished = true;
 
+    const isCorrect = (selectedIndex === activeQuestion.correctIndex);
     const data = appData[currentLang];
     const resultBox = document.getElementById('result-box');
     const resultMsg = document.getElementById('result-message');
     
     resultBox.classList.remove('hidden');
-    document.getElementById('submit-btn').classList.add('hidden');
     document.getElementById('ui-exp-title').innerText = data.expTitle;
     document.getElementById('ui-nickname-label').innerText = data.nicknameLabel;
     document.getElementById('player-nickname').placeholder = data.nicknamePlaceholder;
@@ -385,18 +350,19 @@ function checkAnswer() {
         resultMsg.className = "text-center font-bold text-sm text-emerald-400";
         resultMsg.innerText = `${data.successMsg}${elapsedSeconds}s`;
         document.getElementById('explanation-text').innerText = activeQuestion.explanation;
-        renderOptions();
+        renderTriviaOptions(selectedIndex);
     } else {
         resultMsg.className = "text-center font-bold text-sm text-rose-400";
-        resultMsg.innerText = `${data.failMsg} (${elapsedSeconds}s)`;
+        const correctLabel = ['A', 'B', 'C', 'D'][activeQuestion.correctIndex];
+        resultMsg.innerText = `${data.failMsg} ${correctLabel}. ${activeQuestion.options[activeQuestion.correctIndex].text} (${elapsedSeconds}s)`;
         document.getElementById('score-input-section').classList.add('hidden');
         document.getElementById('explanation-text').innerText = activeQuestion.explanation;
-        renderOptions();
+        renderTriviaOptions(selectedIndex);
     }
 }
 
 // ==========================================
-// 🌐 玩家自訂題庫功能 (Creator & Community)
+// 🌐 玩家自訂題庫功能
 // ==========================================
 function openCreatorModal() {
     document.getElementById('creator-modal').classList.remove('hidden');
@@ -411,6 +377,7 @@ async function publishCustomSet() {
     const creator = document.getElementById('new-set-creator').value.trim();
     const qText = document.getElementById('new-q-text').value.trim();
     const exp = document.getElementById('new-exp').value.trim();
+    const correctIdxNum = parseInt(document.getElementById('new-correct-idx').value) - 1;
     
     const o0 = document.getElementById('opt-0').value.trim();
     const o1 = document.getElementById('opt-1').value.trim();
@@ -422,6 +389,11 @@ async function publishCustomSet() {
         return;
     }
 
+    if (isNaN(correctIdxNum) || correctIdxNum < 0 || correctIdxNum > 3) {
+        alert(currentLang === 'en' ? "Correct option must be between 1 and 4!" : "正確答案選項請填入 1 到 4 之間的數字！");
+        return;
+    }
+
     if (!supabaseClient) {
         alert("Database offline.");
         return;
@@ -430,7 +402,7 @@ async function publishCustomSet() {
     const questionObj = {
         questionText: qText,
         options: [{ text: o0 }, { text: o1 }, { text: o2 }, { text: o3 }],
-        correctOrder: [0, 1, 2, 3], // 建立時預設輸入順序即為正確順序
+        correctIndex: correctIdxNum,
         explanation: exp || "No explanation provided."
     };
 
