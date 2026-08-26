@@ -28,7 +28,7 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans antialiased">
 
     <!-- 頂部頂級導覽列 -->
-    <header class="sticky top-0 z-40 w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3">
+    <header class="sticky top-0 z-40 w-full bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="app.router('home')">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
@@ -52,7 +52,7 @@
                     <span>🏅</span><span class="hidden sm:inline">成就徽章</span>
                 </button>
                 <button onclick="app.openCreatorModal()" class="text-xs bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white px-4 py-2 rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center space-x-1.5">
-                    <span>✨</span><span>建立新題庫</span>
+                    <span>✨</span><span>建立新題庫 (1000+題)</span>
                 </button>
                 <select id="lang-selector" onchange="app.switchLanguage(this.value)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-800 focus:outline-none focus:border-indigo-500 font-semibold cursor-pointer">
                     <option value="zh">繁體中文</option>
@@ -82,24 +82,24 @@
                             <span>▶</span><span id="ui-banner-play-btn">立即開始今日挑戰</span>
                         </button>
                         <button onclick="app.startEndlessMode()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-bold px-6 py-3 rounded-xl border border-slate-700 transition-all flex items-center space-x-2">
-                            <span>♾️</span><span id="ui-banner-endless-btn">無限生存模式</span>
+                            <span>♾️</span><span id="ui-banner-endless-btn">無限生存模式 (1000+題庫)</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 官方分類區塊 -->
+            <!-- 官方分類區塊 (擴充為 8 大分類) -->
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
-                    <h3 id="ui-categories-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest">官方學科與主題分類</h3>
-                    <span class="text-xs text-slate-500">4 Categories Available</span>
+                    <h3 id="ui-categories-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest">官方學科與主題分類 (8大領域)</h3>
+                    <span class="text-xs text-slate-500">8 Categories Available</span>
                 </div>
                 <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
             </div>
 
             <!-- 社群自訂題庫區塊 -->
             <div class="space-y-4 pt-4 border-t border-slate-900">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center flex-wrap gap-2">
                     <h3 id="ui-custom-title" class="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center space-x-1.5">
                         <span>🌐</span><span>社群自訂題庫專區 (Community Custom Sets)</span>
                     </h3>
@@ -191,52 +191,43 @@
 
     <!-- ================= 互動彈跳視窗 (Modals) ================= -->
 
-    <!-- 建立自訂題庫彈跳視窗 -->
+    <!-- 建立大型自訂題庫彈跳視窗 (支援 1000+ 題 JSON 批量匯入) -->
     <div id="creator-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                 <div class="flex items-center space-x-2">
                     <span class="text-xl">✨</span>
-                    <h3 id="ui-modal-title" class="font-bold text-sm sm:text-base text-indigo-400">建立你的自訂單選題庫</h3>
+                    <h3 class="font-bold text-sm sm:text-base text-indigo-400">建立你的大型自訂題庫 (支援多題 / 1000+題)</h3>
                 </div>
                 <button onclick="app.closeCreatorModal()" class="text-slate-400 hover:text-white text-lg font-bold w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center transition-all">✕</button>
             </div>
             
             <div class="space-y-4 text-xs max-h-[60vh] overflow-y-auto pr-2">
                 <div>
-                    <label id="ui-lbl-set-title" class="block text-slate-400 font-semibold mb-1.5">題庫名稱 (Set Title)：</label>
-                    <input type="text" id="new-set-title" placeholder="例如：世界歷史奇聞大考驗" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-medium">
+                    <label class="block text-slate-400 font-semibold mb-1.5">題庫名稱 (Set Title)：</label>
+                    <input type="text" id="new-set-title" placeholder="例如：地表最強冷知識百科 (大合集)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-medium">
                 </div>
                 <div>
-                    <label id="ui-lbl-creator" class="block text-slate-400 font-semibold mb-1.5">您的名字或作者 (Creator)：</label>
+                    <label class="block text-slate-400 font-semibold mb-1.5">您的名字或作者 (Creator)：</label>
                     <input type="text" id="new-set-creator" placeholder="例如：Alex" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-medium">
                 </div>
                 <div>
-                    <label id="ui-lbl-q-text" class="block text-slate-400 font-semibold mb-1.5">題目敘述 (Question Text)：</label>
-                    <input type="text" id="new-q-text" placeholder="例如：世界上流速最快的河川是哪一條？" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-medium">
-                </div>
-                <div>
-                    <label id="ui-lbl-options" class="block text-slate-400 font-semibold mb-1.5">選項 (請完整填寫 4 個選項)：</label>
-                    <div class="space-y-2">
-                        <input type="text" id="opt-0" placeholder="選項 A" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white text-xs">
-                        <input type="text" id="opt-1" placeholder="選項 B" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white text-xs">
-                        <input type="text" id="opt-2" placeholder="選項 C" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white text-xs">
-                        <input type="text" id="opt-3" placeholder="選項 D" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white text-xs">
-                    </div>
-                </div>
-                <div>
-                    <label id="ui-lbl-correct" class="block text-slate-400 font-semibold mb-1.5">正確答案是第幾個選項 (1 到 4)：</label>
-                    <input type="number" id="new-correct-idx" min="1" max="4" value="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-medium">
-                </div>
-                <div>
-                    <label id="ui-lbl-exp" class="block text-slate-400 font-semibold mb-1.5">冷知識解析 (Explanation)：</label>
-                    <textarea id="new-exp" rows="3" placeholder="解釋正確答案背後的有趣科學或歷史原因..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-medium"></textarea>
+                    <label class="block text-slate-400 font-semibold mb-1.5">批量匯入題目 (JSON 格式陣列)：</label>
+                    <textarea id="new-questions-json" rows="8" placeholder='[
+  {
+    "questionText": "世界上流速最快的河川是哪一條？",
+    "options": [{"text": "亞馬遜河"}, {"text": "尼羅河"}, {"text": "長江"}, {"text": "剛果河"}],
+    "correctIndex": 3,
+    "explanation": "剛果河是世界上最深的河川，也是流速極快的巨大河流。"
+  }
+]' class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono text-[11px] focus:outline-none focus:border-indigo-500"></textarea>
+                    <p class="text-[10px] text-slate-500 mt-1">💡 提示：你可以直接貼入符合格式的 JSON 陣列來一次建立上千道題目！</p>
                 </div>
             </div>
 
             <div class="flex space-x-3 pt-2">
-                <button onclick="app.closeCreatorModal()" id="ui-btn-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl text-xs font-bold transition-all">取消</button>
-                <button onclick="app.publishCustomSet()" id="ui-btn-publish" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all">發布自訂題庫 🚀</button>
+                <button onclick="app.closeCreatorModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl text-xs font-bold transition-all">取消</button>
+                <button onclick="app.publishCustomSet()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all">發布大型題庫 🚀</button>
             </div>
         </div>
     </div>
@@ -250,9 +241,7 @@
                 </h3>
                 <button onclick="app.closeStatsModal()" class="text-slate-400 hover:text-white text-lg font-bold w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center transition-all">✕</button>
             </div>
-            <div id="stats-content" class="grid grid-cols-2 gap-4 text-xs">
-                <!-- 動態填充統計數據 -->
-            </div>
+            <div id="stats-content" class="grid grid-cols-2 gap-4 text-xs"></div>
             <button onclick="app.resetStatsData()" class="w-full bg-rose-950/40 hover:bg-rose-900/50 text-rose-400 border border-rose-500/30 py-2.5 rounded-xl text-xs font-bold transition-all">
                 🗑️ 清除本機戰績記錄
             </button>
@@ -268,9 +257,7 @@
                 </h3>
                 <button onclick="app.closeAchievementsModal()" class="text-slate-400 hover:text-white text-lg font-bold w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center transition-all">✕</button>
             </div>
-            <div id="achievements-list" class="space-y-3 text-xs">
-                <!-- 動態填充成就列表 -->
-            </div>
+            <div id="achievements-list" class="space-y-3 text-xs"></div>
         </div>
     </div>
 
@@ -280,7 +267,7 @@
         <p class="text-[10px] text-slate-600">All trivia questions are verified for single-choice correct accuracy.</p>
     </footer>
 
-    <!-- 載入規模龐大的 JavaScript 核心程式碼 -->
+    <!-- 載入 JavaScript 核心程式碼 -->
     <script src="script.js"></script>
 </body>
 </html>
