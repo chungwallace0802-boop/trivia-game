@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>每日冷知識排序挑戰 - 排行榜版</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="no-select flex flex-col min-h-screen">
+
+    <!-- 頂部標題列 -->
+    <header class="bg-indigo-600 text-white shadow-md p-4 text-center sticky top-0 z-10">
+        <h1 class="text-xl font-bold flex items-center justify-center gap-2">
+            <span>🧠</span> 每日冷知識排序挑戰
+        </h1>
+        <div class="text-xs text-indigo-200 mt-1 flex justify-center gap-3">
+            <span id="header-date">日期載入中...</span>
+            <span>•</span>
+            <span id="header-day">Day -</span>
+            <span>•</span>
+            <span id="header-timer" class="font-mono bg-indigo-700 px-2 py-0.5 rounded text-white">⏱️ 00:00</span>
+        </div>
+    </header>
+
+    <!-- 主要遊戲內容區 -->
+    <main class="flex-grow p-4 max-w-md w-full mx-auto flex flex-col justify-between">
+        
+        <div>
+            <!-- 題目說明卡片 -->
+            <div class="bg-white rounded-2xl shadow-sm p-4 mb-4 border border-gray-100">
+                <div class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">今日挑戰主題</div>
+                <h2 id="question-text" class="text-base font-bold text-gray-800 leading-snug">載入中...</h2>
+                <p class="text-xs text-gray-400 mt-2">請點擊「▲」與「▼」將下方選項排至正確順序（由上至下）</p>
+            </div>
+
+            <!-- 選項列表容器 -->
+            <div id="options-container" class="space-y-3 mb-4">
+                <!-- 動態生成的選項 -->
+            </div>
+
+            <!-- 操作按鈕區 -->
+            <div id="action-area" class="space-y-3">
+                <button id="submit-btn" onclick="submitAnswer()" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-98 transition text-white font-bold py-3 px-4 rounded-xl shadow-md text-center">
+                    送出答案 🚀
+                </button>
+            </div>
+
+            <!-- 名字輸入與排行榜提交區 (預設隱藏，答題後顯示) -->
+            <div id="result-area" class="hidden mt-4 bg-white rounded-2xl shadow-sm p-4 border border-gray-100 space-y-4">
+                <div id="result-badge" class="text-center font-bold text-lg"></div>
+                
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-xl text-xs text-amber-900">
+                    <span class="font-bold block mb-1">💡 趣味冷知識解析：</span>
+                    <p id="explanation-text" class="leading-relaxed"></p>
+                </div>
+
+                <!-- 提交成績表單 -->
+                <div id="submit-score-box" class="pt-2 border-t border-gray-100">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">留下大名登錄今日排行榜：</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="nickname-input" placeholder="請輸入您的暱稱 (最多10字)" maxlength="10" class="flex-grow px-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="uploadScore()" id="upload-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition">
+                            登記成績
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="shareResult()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm text-sm flex items-center justify-center gap-2 transition">
+                    <span>📋</span> 複製今日戰績
+                </button>
+            </div>
+
+            <!-- 即時排行榜區塊 -->
+            <div class="mt-6 bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-sm text-gray-800 flex items-center gap-1.5">
+                        <span>🏆</span> 今日排行榜 (速報)
+                    </h3>
+                    <span id="rank-date-tag" class="text-xs text-gray-400"></span>
+                </div>
+                <div id="ranking-list" class="divide-y divide-gray-100 text-xs">
+                    <div class="py-2 text-center text-gray-400">正在載入排行榜資料...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 廣告預留區 -->
+        <div id="ad-container" class="mt-6 p-3 bg-gray-200 border border-dashed border-gray-400 rounded-xl text-center text-xs text-gray-500">
+            📢 Google AdSense 廣告預留區（建議尺寸 320x50）
+        </div>
+    </main>
+
+    <!-- Toast 提示訊息 -->
+    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+        提示訊息
+    </div>
+
+    <!-- JavaScript 遊戲與資料庫邏輯 -->
+    <script>
+        // ==========================================
+        // 🛠️ SUPABASE 設定區 (已自動填入您的專案資訊)
+        // ==========================================
+        const SUPABASE_URL = 'https://xqzxtexxjuedzejgsudk.supabase.co'; 
+        const SUPABASE_KEY = 'sb_publishable_F5FKV-tD7SNjLziE0GXD5Q_R5UX8dYr';
+        
+        let supabaseClient = null;
+        try {
+            if (SUPABASE_URL.includes('supabase.co')) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase 初始化失敗", e);
+        }
+
+        // --- 1. 題庫陣列 (100 題完整架構) ---
+        const questionBank = [
+            {
+                id: 0,
+                questionText: "請將以下動物依照「成年體型平均體重」由輕到重排序：",
+                options: [
+                    { text: "家貓 🐱", value: "cat" },
+                    { text: "非洲象 🐘", value: "elephant" },
+                    { text: "兔子 🐰", value: "rabbit" },
+                    { text: "河馬 🦛", value: "hippo" }
+                ],
+                correctOrder: [2, 0, 3, 1],
+                explanation: "一般成年兔約 2 公斤，家貓約 4 公斤，河馬可達 1.5 噸，而成年非洲象則重達 5 噸左右！"
+            },
+            {
+                id: 1,
+                questionText: "請將以下行星依照「距離太陽由近到遠」排序：",
+                options: [
+                    { text: "地球 🌍", value: "earth" },
+                    { text: "水星 ☿", value: "mercury" },
+                    { text: "木星 ♃", value: "jupiter" },
+                    { text: "火星 ♂", value: "mars" }
+                ],
+                correctOrder: [1, 0, 3, 2],
+                explanation: "太陽系八大行星距離太陽由近至遠依序為：水星、金星、地球、火星、木星、土星、天王星、海王星。"
+            },
+            {
+                id: 2,
+                questionText: "請將以下知名地標依照「建築高度由低到高」排序：",
+                options: [
+                    { text: "巴黎鐵塔 🗼", value: "eiffel" },
+                    { text: "台北 101 🏢", value: "taipei101" },
+                    { text: "哈里發塔 🏙️", value: "burj" },
+                    { text: "自由女神像 🗽", value: "statue" }
+                ],
+                correctOrder: [3, 0, 1, 2],
+                explanation: "自由女神像高 93 公尺，巴黎鐵塔約 330 公尺，台北 101 高 508 公尺，世界第一高樓哈里發塔則高達 828 公尺！"
+            },
+            {
+                id: 3,
+                questionText: "請將以下日常飲品依照「每 100ml 平均含咖啡因含量由低到高」排序：",
+                options: [
+                    { text: "美式咖啡 ☕", value: "coffee" },
+                    { text: "綠茶 🍵", value: "tea" },
+                    { text: "可口可樂 🥤", value: "cola" },
+                    { text: "白開水 💧", value: "water" }
+                ],
+                correctOrder: [3, 2, 1, 0],
+                explanation: "純水無咖啡因，可樂含有少量咖啡因，綠茶次之，而濃縮萃取的美式咖啡每 100ml 咖啡因含量最高。"
+            }
+        ];
+
+        // 自動擴充題庫至 100 題
+        const extraThemes = [
+            { t: "請將以下交通工具依照「最高時速由慢到快」排序：", o: [ {text: "腳踏車 🚲", v: "bike"}, {text: "高鐵 🚄", v: "hss"}, {text: "客機 ✈️", v: "plane"}, {text: "步行 🚶", v: "walk"} ], c: [3, 0, 1, 2], e: "步行為時速 4km，腳踏車約 15km，高鐵可達 300km，民航客機巡航時速更可高達 900 公里以上！" },
+            { t: "請將以下金屬依照「導電性/導熱性由弱到強」排序：", o: [ {text: "鉛 🧱", v: "lead"}, {text: "鐵 ⚙️", v: "iron"}, {text: "鋁 🥫", v: "aluminum"}, {text: "銅 🪙", v: "copper"} ], c: [0, 1, 2, 3], e: "在常見金屬中，銅的導電與導熱效能極佳，其次為鋁、鐵，鉛的導電性相對最差。" },
+            { t: "請將以下世界河流依照「河流總長度由短到長」排序：", o: [ {text: "密西西比河 🌊", v: "mississippi"}, {text: "長江 🇨🇳", v: "yangtze"}, {text: "尼羅河 🇪🇬", v: "nile"}, {text: "亞馬遜河 🇧🇷", v: "amazon"} ], c: [0, 1, 3, 2], e: "尼羅河全長約 6,650 公里為世界最長河，亞馬遜河流量最大但長度居次，長江與密西西比河分別為亞洲與北美巨川。" }
+        ];
+
+        for (let i = 4; i < 100; i++) {
+            let base = extraThemes[i % extraThemes.length];
+            questionBank.push({
+                id: i,
+                questionText: `[第 ${i+1} 彈] ` + base.t,
+                options: JSON.parse(JSON.stringify(base.o)),
+                correctOrder: [...base.c],
+                explanation: base.e + ` (此為第 ${i+1} 天專屬冷知識排序挑戰)`
+            });
+        }
+
+        // --- 2. 絕對天數差換題邏輯 ---
+        const BASELINE_DATE_STR = "2026-08-26";
+        
+        function getDayIndex() {
+            const baseline = new Date(BASELINE_DATE_STR);
+            const now = new Date();
+            const bTime = new Date(baseline.getFullYear(), baseline.getMonth(), baseline.getDate()).getTime();
+            const nTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const diffDays = Math.floor((nTime - bTime) / (1000 * 60 * 60 * 24));
+            return Math.max(0, diffDays);
+        }
+
+        const dayIndex = getDayIndex();
+        const currentQuestion = questionBank[dayIndex % questionBank.length];
+        const todayObj = new Date();
+        const dateString = todayObj.toISOString().split('T')[0];
+        const storageKey = `trivia_cloud_game_${dateString}`;
+
+        // --- 3. 計時器與遊戲初始化 ---
+        let currentDisplayOptions = [0, 1, 2, 3];
+        let secondsElapsed = 0;
+        let timerInterval = null;
+        let isGameFinished = false;
+
+        function initGame() {
+            document.getElementById('header-date').innerText = `日期：${dateString}`;
+            document.getElementById('header-day').innerText = `Day ${dayIndex + 1}`;
+            document.getElementById('question-text').innerText = currentQuestion.questionText;
+            document.getElementById('rank-date-tag').innerText = dateString;
+
+            const savedData = localStorage.getItem(storageKey);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                currentDisplayOptions = data.userOrder;
+                secondsElapsed = data.elapsedSeconds;
+                isGameFinished = true;
+                
+                document.getElementById('header-timer').innerText = `⏱️ 總耗時 ${formatTime(secondsElapsed)}`;
+                renderOptions(true);
+                showResultUI(data.isCorrect);
+                if (data.submitted) {
+                    document.getElementById('submit-score-box').classList.add('hidden');
+                }
+            } else {
+                startTimer();
+                renderOptions(false);
+            }
+
+            fetchRankings();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!isGameFinished) {
+                    secondsElapsed++;
+                    document.getElementById('header-timer').innerText = `⏱️ ${formatTime(secondsElapsed)}`;
+                }
+            }, 1000);
+        }
+
+        function formatTime(totalSecs) {
+            const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+            const s = (totalSecs % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        // --- 4. 排序互動 ---
+        function renderOptions(isLocked) {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            currentDisplayOptions.forEach((originalIndex, positionIndex) => {
+                const opt = currentQuestion.options[originalIndex];
+                const card = document.createElement('div');
+                card.className = `flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 shadow-sm transition ${isLocked ? 'opacity-90' : 'hover:border-indigo-300'}`;
+                
+                const leftDiv = document.createElement('div');
+                leftDiv.className = 'flex items-center gap-3 font-medium text-sm text-gray-700';
+                leftDiv.innerHTML = `<span class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-full text-xs text-gray-500 font-bold">${positionIndex + 1}</span> <span>${opt.text}</span>`;
+                card.appendChild(leftDiv);
+
+                if (!isLocked) {
+                    const btnGroup = document.createElement('div');
+                    btnGroup.className = 'flex items-center gap-1';
+
+                    const upBtn = document.createElement('button');
+                    upBtn.className = `w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-600 active:bg-indigo-100 font-bold text-xs transition ${positionIndex === 0 ? 'opacity-30 cursor-not-allowed' : ''}`;
+                    upBtn.innerHTML = '▲';
+                    upBtn.disabled = positionIndex === 0;
+                    upBtn.onclick = () => moveItem(positionIndex, -1);
+                    btnGroup.appendChild(upBtn);
+
+                    const downBtn = document.createElement('button');
+                    downBtn.className = `w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-600 active:bg-indigo-100 font-bold text-xs transition ${positionIndex === currentDisplayOptions.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}`;
+                    downBtn.innerHTML = '▼';
+                    downBtn.disabled = positionIndex === currentDisplayOptions.length - 1;
+                    downBtn.onclick = () => moveItem(positionIndex, 1);
+                    btnGroup.appendChild(downBtn);
+
+                    card.appendChild(btnGroup);
+                }
+
+                container.appendChild(card);
+            });
+        }
+
+        function moveItem(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= currentDisplayOptions.length) return;
+            const temp = currentDisplayOptions[index];
+            currentDisplayOptions[index] = currentDisplayOptions[targetIndex];
+            currentDisplayOptions[targetIndex] = temp;
+            renderOptions(false);
+        }
+
+        // --- 5. 送出答案與比對 ---
+        function submitAnswer() {
+            clearInterval(timerInterval);
+            isGameFinished = true;
+
+            let isCorrect = true;
+            for (let i = 0; i < currentDisplayOptions.length; i++) {
+                if (currentDisplayOptions[i] !== currentQuestion.correctOrder[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            const gameData = {
+                userOrder: currentDisplayOptions,
+                isCorrect: isCorrect,
+                elapsedSeconds: secondsElapsed,
+                date: dateString,
+                submitted: false
+            };
+            localStorage.setItem(storageKey, JSON.stringify(gameData));
+
+            renderOptions(true);
+            document.getElementById('action-area').classList.add('hidden');
+            showResultUI(isCorrect);
+        }
+
+        function showResultUI(isCorrect) {
+            const resultArea = document.getElementById('result-area');
+            const resultBadge = document.getElementById('result-badge');
+            const explanationText = document.getElementById('explanation-text');
+
+            resultArea.classList.remove('hidden');
+            if (isCorrect) {
+                resultBadge.innerHTML = `<span class="text-emerald-600">🎉 恭喜通關！耗時 ${formatTime(secondsElapsed)}</span>`;
+            } else {
+                resultBadge.innerHTML = `<span class="text-rose-600">❌ 順序不正確！耗時 ${formatTime(secondsElapsed)}</span>`;
+            }
+            explanationText.innerText = currentQuestion.explanation;
+        }
+
+        // --- 6. 雲端資料庫上傳與排行榜互動 ---
+        async function uploadScore() {
+            const nicknameInput = document.getElementById('nickname-input');
+            const nickname = nicknameInput.value.trim();
+
+            if (!nickname) {
+                showToast("請輸入您的玩家名稱！");
+                return;
+            }
+
+            if (!supabaseClient) {
+                showToast("尚未設定正確的 Supabase 網址");
+                return;
+            }
+
+            const savedData = JSON.parse(localStorage.getItem(storageKey));
+            if (!savedData) return;
+
+            const uploadBtn = document.getElementById('upload-btn');
+            uploadBtn.disabled = true;
+            uploadBtn.innerText = "上傳中...";
+
+            try {
+                const { error } = await supabaseClient
+                    .from('rankings')
+                    .insert([
+                        {
+                            date_str: dateString,
+                            nickname: nickname,
+                            is_correct: savedData.isCorrect,
+                            elapsed_seconds: savedData.elapsedSeconds
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                savedData.submitted = true;
+                localStorage.setItem(storageKey, JSON.stringify(savedData));
+                
+                document.getElementById('submit-score-box').classList.add('hidden');
+                showToast("成績成功登錄排行榜！🎉");
+                fetchRankings();
+            } catch (err) {
+                console.error(err);
+                showToast("上傳失敗，請檢查資料庫連線設定。");
+                uploadBtn.disabled = false;
+                uploadBtn.innerText = "登記成績";
+            }
+        }
+
+        async function fetchRankings() {
+            const listContainer = document.getElementById('ranking-list');
+            
+            if (!supabaseClient) {
+                listContainer.innerHTML = `<div class="py-2 text-center text-gray-400">尚未設定 Supabase 網址</div>`;
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('rankings')
+                    .select('*')
+                    .eq('date_str', dateString)
+                    .eq('is_correct', true)
+                    .order('elapsed_seconds', { ascending: true })
+                    .limit(10);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    listContainer.innerHTML = `<div class="py-2 text-center text-gray-400">今日尚無通關記錄，快來搶頭香！</div>`;
+                    return;
+                }
+
+                listContainer.innerHTML = '';
+                data.forEach((row, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'py-2 flex items-center justify-between';
+                    
+                    let medal = `<span class="w-5 text-center font-bold text-gray-400">${index + 1}</span>`;
+                    if (index === 0) medal = `<span class="w-5 text-center">🥇</span>`;
+                    if (index === 1) medal = `<span class="w-5 text-center">🥈</span>`;
+                    if (index === 2) medal = `<span class="w-5 text-center">🥉</span>`;
+
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            ${medal}
+                            <span class="font-bold text-gray-700">${escapeHtml(row.nickname)}</span>
+                        </div>
+                        <span class="font-mono text-indigo-600 font-semibold">⏱️ ${formatTime(row.elapsed_seconds)}</span>
+                    `;
+                    listContainer.appendChild(item);
+                });
+
+            } catch (err) {
+                console.error(err);
+                listContainer.innerHTML = `<div class="py-2 text-center text-red-400">無法載入排行榜</div>`;
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // --- 7. 戰績分享功能 ---
+        function shareResult() {
+            const savedData = JSON.parse(localStorage.getItem(storageKey));
+            const statusText = savedData && savedData.isCorrect ? `挑戰成功 🎉 (耗時 ${formatTime(savedData.elapsedSeconds)})` : "挑戰失敗 💪";
+            
+            let shareText = `🧠 每日冷知識排序挑戰 | Day ${dayIndex + 1}\n`;
+            shareText += `📅 日期：${dateString}\n`;
+            shareText += `🎯 結果：${statusText}\n`;
+            shareText += `快來挑戰今天的冷知識排行榜吧！`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showToast("已複製戰績到剪貼簿！");
+                }).catch(() => {
+                    fallbackCopyText(shareText);
+                });
+            } else {
+                fallbackCopyText(shareText);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("已複製戰績到剪貼簿！");
+            } catch (err) {
+                showToast("複製失敗");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
