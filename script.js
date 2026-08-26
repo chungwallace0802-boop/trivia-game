@@ -1,7 +1,6 @@
 /**
  * ============================================================================
- * TRIVIA HUB ULTIMATE - 終極前端應用程式核心控制器 (Full Version)
- * 支援 8 大官方分類、大型多題陣列題庫 (1000+題)、社群題庫刪除與完整成就系統
+ * TRIVIA HUB ULTIMATE - 終極前端應用程式核心控制器 (Full Version with Form Builder)
  * ============================================================================
  */
 
@@ -115,7 +114,7 @@ class TriviaHubApp {
             }
         };
 
-        // 官方精選題庫集（包含擴充欄位）
+        // 官方精選題庫集
         this.officialQuestions = {
             zh: {
                 daily: [
@@ -326,7 +325,6 @@ class TriviaHubApp {
     startCustomSet(setId, title, creator, questionsArray) {
         this.activeCustomSetId = setId;
         const dict = this.i18n[this.currentLang];
-        // 確保支援多題陣列
         this.questionsList = Array.isArray(questionsArray) ? questionsArray : [questionsArray];
         this.currentIndex = 0;
         this.score = 0;
@@ -468,27 +466,99 @@ class TriviaHubApp {
         }
     }
 
-    openCreatorModal() { document.getElementById('creator-modal').classList.remove('hidden'); }
-    closeCreatorModal() { document.getElementById('creator-modal').classList.add('hidden'); }
+    openCreatorModal() { 
+        document.getElementById('creator-modal').classList.remove('hidden');
+        const container = document.getElementById('questions-builder-container');
+        if (container.children.length === 0) {
+            this.addQuestionField();
+        }
+    }
+    
+    closeCreatorModal() { 
+        document.getElementById('creator-modal').classList.add('hidden'); 
+    }
 
-    async publishCustomSet() {
+    addQuestionField() {
+        const container = document.getElementById('questions-builder-container');
+        const index = container.children.length + 1;
+        
+        const card = document.createElement('div');
+        card.className = "question-card bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 relative";
+        card.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-indigo-400">題目 #${index}</span>
+                <button onclick="this.closest('.question-card').remove()" class="text-rose-400 hover:text-rose-300 font-bold px-2 py-1">🗑️ 刪除此題</button>
+            </div>
+            <div>
+                <input type="text" placeholder="請輸入題目內容..." class="q-text w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input type="text" placeholder="選項 A" class="q-opt-0 w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-white text-xs">
+                <input type="text" placeholder="選項 B" class="q-opt-1 w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-white text-xs">
+                <input type="text" placeholder="選項 C" class="q-opt-2 w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-white text-xs">
+                <input type="text" placeholder="選項 D" class="q-opt-3 w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-white text-xs">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">正確答案 (0=A, 1=B, 2=C, 3=D)：</label>
+                    <select class="q-correct w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-white text-xs">
+                        <option value="0">選項 A 正確</option>
+                        <option value="1">選項 B 正確</option>
+                        <option value="2">選項 C 正確</option>
+                        <option value="3">選項 D 正確</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">冷知識解析：</label>
+                    <input type="text" placeholder="輸入此題的背後解析..." class="q-exp w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-white text-xs">
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+
+    async publishCustomSetFromBuilder() {
         const title = document.getElementById('new-set-title').value.trim();
         const creator = document.getElementById('new-set-creator').value.trim();
-        const jsonStr = document.getElementById('new-questions-json').value.trim();
+        const cards = document.querySelectorAll('.question-card');
 
-        if (!title || !creator || !jsonStr) {
-            alert("請完整填寫題庫名稱、作者與 JSON 題目陣列！");
+        if (!title || !creator) {
+            alert("請填寫題庫名稱與作者！");
             return;
         }
 
-        let questionsDataArray;
-        try {
-            questionsDataArray = JSON.parse(jsonStr);
-            if (!Array.isArray(questionsDataArray) || questionsDataArray.length === 0) throw new Error();
-        } catch (e) {
-            alert("JSON 格式錯誤！請確保格式為合法的題目陣列 [ {...}, {...} ]。");
+        if (cards.length === 0) {
+            alert("請至少新增一道題目！");
             return;
         }
+
+        let questionsDataArray = [];
+        let isValid = true;
+
+        cards.forEach((card, idx) => {
+            const qText = card.querySelector('.q-text').value.trim();
+            const opt0 = card.querySelector('.q-opt-0').value.trim();
+            const opt1 = card.querySelector('.q-opt-1').value.trim();
+            const opt2 = card.querySelector('.q-opt-2').value.trim();
+            const opt3 = card.querySelector('.q-opt-3').value.trim();
+            const correctIndex = parseInt(card.querySelector('.q-correct').value);
+            const explanation = card.querySelector('.q-exp').value.trim();
+
+            if (!qText || !opt0 || !opt1 || !opt2 || !opt3) {
+                alert(`第 ${idx + 1} 題的題目或選項內容不完整，請檢查！`);
+                isValid = false;
+                return;
+            }
+
+            questionsDataArray.push({
+                questionText: qText,
+                options: [{ text: opt0 }, { text: opt1 }, { text: opt2 }, { text: opt3 }],
+                correctIndex: correctIndex,
+                explanation: explanation || "無額外解析"
+            });
+        });
+
+        if (!isValid) return;
 
         if (!this.supabaseClient) {
             alert("資料庫尚未連線。");
@@ -501,9 +571,9 @@ class TriviaHubApp {
 
         if (error) {
             console.error(error);
-            alert("發布失敗，請確認 Supabase 資料表是否已建立！");
+            alert("發布失敗，請確認 Supabase 資料表是否已正確建立！");
         } else {
-            this.showToast("大型題庫發布成功！🎉");
+            this.showToast("題庫後台發布成功！🎉");
             this.checkAchievements('creator');
             this.closeCreatorModal();
             this.loadCustomSets();
